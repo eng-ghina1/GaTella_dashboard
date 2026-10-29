@@ -13,18 +13,19 @@
                 extend: {
                     colors: {
                         space: {
-                            900: '#030712',
-                            800: '#0b0f19',
-                            700: '#111827',
-                            600: '#1f2937',
-                            500: '#374151',
+                            950: '#020617',
+                            900: '#070d1d',
+                            850: '#0c1427',
+                            800: '#111c35',
+                            700: '#1e293b',
+                            600: '#334155',
                         },
                         neon: {
-                            green: '#10b981',
-                            yellow: '#f59e0b',
-                            red: '#ef4444',
-                            blue: '#3b82f6',
-                            cyan: '#06b6d4'
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            purple: '#a855f7'
                         }
                     },
                     fontFamily: {
@@ -35,370 +36,540 @@
             }
         }
     </script>
-    <!-- FontAwesome for Aerospace / Satellite Icons -->
+    <!-- FontAwesome for Aerospace Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Telemetry Trends -->
+    <!-- Chart.js for Telemetry Streams -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-        
-        .glow-green { box-shadow: 0 0 25px rgba(16, 185, 129, 0.3); }
-        .glow-yellow { box-shadow: 0 0 25px rgba(245, 158, 11, 0.3); }
-        .glow-red { box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); animation: pulse-red 1.5s infinite; }
-        
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
+        /* Aerospace Glassmorphism Panels */
         .glass-panel {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(12px);
+            background: rgba(12, 20, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Custom scrollbar */
+        .glass-panel-accent {
+            background: rgba(17, 28, 53, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        /* Status Glow Effects */
+        .glow-safe { box-shadow: 0 0 30px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.4); }
+        .glow-warning { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); border-color: rgba(245, 158, 11, 0.5); }
+        .glow-danger { box-shadow: 0 0 40px rgba(244, 63, 94, 0.5); border-color: rgba(244, 63, 94, 0.7); animation: pulse-danger 1.5s infinite; }
+
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        /* Grid Background Pattern */
+        body {
+            background-color: #020617;
+            background-image: radial-gradient(rgba(6, 182, 212, 0.08) 1px, transparent 0);
+            background-size: 28px 28px;
+            background-position: -1px -1px;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #030712; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Orientation Box Simulation */
+        .attitude-box {
+            perspective: 400px;
+        }
+        .attitude-cube {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.2s ease-out;
+            transform-style: preserve-3d;
+        }
     </style>
 </head>
-<body class="bg-space-900 text-gray-100 font-sans min-h-screen antialiased selection:bg-cyan-500 selection:text-white">
+<body class="text-slate-100 font-sans min-h-screen antialiased selection:bg-cyan-500 selection:text-white pb-12">
 
-    <!-- Notification / Alert Modal for replacement of standard alert() -->
-    <div id="notification-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
-        <div class="glass-panel max-w-md w-full mx-4 p-6 rounded-2xl border border-gray-700 shadow-2xl">
-            <div class="flex items-center space-x-3 mb-4">
-                <div id="modal-icon-container" class="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/20 text-cyan-400">
-                    <i class="fa-solid fa-satellite text-xl"></i>
+    <!-- Custom Aerospace Modal Notification System (Replaces alert()) -->
+    <div id="system-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden transition-all duration-300">
+        <div class="glass-panel max-w-lg w-full mx-4 p-6 rounded-3xl border border-cyan-500/30 shadow-2xl space-y-4">
+            <div class="flex items-center space-x-3">
+                <div id="modal-icon-bg" class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl border border-cyan-500/30">
+                    <i id="modal-icon" class="fa-solid fa-satellite"></i>
                 </div>
                 <div>
-                    <h3 id="modal-title" class="text-lg font-bold">Mission Notification</h3>
-                    <p class="text-xs text-gray-400">GasTella Control System</p>
+                    <h3 id="modal-title" class="text-lg font-bold text-white tracking-wide">Mission Ground Station Notice</h3>
+                    <p class="text-xs text-slate-400 font-mono">GasTella Telemetry System</p>
                 </div>
             </div>
-            <p id="modal-message" class="text-gray-300 text-sm mb-6 leading-relaxed">System operational message goes here.</p>
-            <div class="flex justify-end">
-                <button onclick="closeModal()" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-cyan-600/30">
+            <p id="modal-body" class="text-sm text-slate-300 leading-relaxed pt-2">System message content.</p>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-cyan-500/20">
                     Acknowledge
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Top Navigation / Header -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Branding & Mission Name -->
-            <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                    <i class="fa-solid fa-satellite text-white text-xl"></i>
-                </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">GasTella CubeSat</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">1U LEO</span>
+    <!-- Header & Subsystem Connection Telemetry Bar -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                
+                <!-- Branding & Satellite ID -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
+                        <i class="fa-solid fa-satellite text-white text-xl"></i>
                     </div>
-                    <p class="text-xs text-gray-400 hidden sm:block">Toxic-Gas Early-Warning Mission & Ground Station Control</p>
-                </div>
-            </div>
-
-            <!-- Live Status & Mission Clock -->
-            <div class="flex items-center space-x-4 sm:space-x-6">
-                <!-- Status Badge -->
-                <div class="flex items-center space-x-2 bg-space-800/80 px-3.5 py-1.5 rounded-full border border-gray-700">
-                    <span class="relative flex h-2.5 w-2.5">
-                      <span id="status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span id="status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <span id="connection-status-text" class="text-xs font-medium text-emerald-400">Synchronized</span>
+                    <div>
+                        <div class="flex items-center space-x-2.5">
+                            <h1 class="text-xl font-black tracking-tight text-white uppercase font-mono">GasTella <span class="text-cyan-400">CubeSat</span></h1>
+                            <span class="px-2.5 py-0.5 text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-md font-mono">1U LEO - 480km</span>
+                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/30 rounded-md font-mono">SatForge 2026</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium">Toxic-Gas Early-Warning Ground Station & Telemetry Processing Node</p>
+                    </div>
                 </div>
 
-                <!-- Mission Elapsed Time / UTC Clock -->
-                <div class="text-right hidden md:block font-mono">
-                    <div id="utc-clock" class="text-xs text-gray-300 font-semibold">00:00:00 UTC</div>
-                    <div id="met-clock" class="text-[10px] text-cyan-400">MET: T+04:12:35</div>
+                <!-- Hardware Connection Link Metrics -->
+                <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 text-xs font-mono">
+                    <!-- Connection Status Badge -->
+                    <div class="flex items-center space-x-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                        </span>
+                        <span id="conn-status-text" class="font-bold text-emerald-400 uppercase tracking-wider">ONLINE - Wi-Fi/LoRa Downlink</span>
+                    </div>
+
+                    <!-- Downlink Telemetry Stats Bar -->
+                    <div class="hidden sm:flex items-center space-x-3 bg-slate-900/80 px-3.5 py-1.5 rounded-xl border border-slate-800 text-slate-300">
+                        <div title="Ping Latency"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i><span id="ping-val">14</span>ms</div>
+                        <div class="text-slate-700">|</div>
+                        <div title="Total Downlinked Packets"><i class="fa-solid fa-cubes text-cyan-400 mr-1"></i>Pkts: <span id="pkt-val" class="text-cyan-400 font-bold">1428</span></div>
+                        <div class="text-slate-700">|</div>
+                        <div title="Data Transfer Rate"><i class="fa-solid fa-wifi text-emerald-400 mr-1"></i><span id="rate-val">12.4</span> kbps</div>
+                        <div class="text-slate-700">|</div>
+                        <div title="Packet Loss Rate"><i class="fa-solid fa-shield text-rose-400 mr-1"></i>Loss: <span id="loss-val" class="text-emerald-400 font-bold">0.0%</span></div>
+                    </div>
+
+                    <!-- UTC & MET Clocks -->
+                    <div class="text-right bg-slate-900/80 px-3 py-1 rounded-xl border border-slate-800">
+                        <div id="utc-clock" class="text-slate-200 font-bold">12:00:00 UTC</div>
+                        <div id="met-clock" class="text-[10px] text-cyan-400">MET: T+04:12:35</div>
+                    </div>
+
+                    <!-- Control Action Buttons -->
+                    <button onclick="exportCSVTelemetry()" class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 rounded-xl transition flex items-center space-x-1.5 text-xs font-sans font-medium" title="Download Recorded Telemetry Dataset">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span class="hidden md:inline">Export CSV Log</span>
+                    </button>
+                    
+                    <button onclick="toggleAudioMute()" id="mute-btn" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl transition" title="Toggle Voice Alerts">
+                        <i id="mute-icon" class="fa-solid fa-volume-high text-cyan-400"></i>
+                    </button>
                 </div>
 
-                <!-- Mobile Menu / Quick Settings -->
-                <button onclick="toggleAudioMute()" id="mute-btn" class="p-2.5 rounded-xl bg-space-800 hover:bg-space-700 text-gray-300 transition border border-gray-700" title="Toggle Voice Alerts">
-                    <i id="mute-icon" class="fa-solid fa-volume-high"></i>
-                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Dashboard Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        <!-- Control Hub Banner: Simulation Mode & Quick Voice Test -->
-        <div class="glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-4 w-full lg:w-auto">
-                <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl">
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Dynamic Risk Assessment Banner (Mission Threat Center) -->
+        <div id="risk-banner" class="glass-panel p-6 rounded-3xl transition-all duration-500 glow-safe">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                
+                <!-- Status Title & Mission Impact -->
+                <div class="space-y-2 flex-1">
+                    <div class="flex items-center space-x-2 text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
+                        <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+                        <span>Mission Threat Assessment & Early Warning System</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <h2 id="risk-title" class="text-2xl sm:text-3xl font-black tracking-tight text-emerald-400">SAFE: NORMAL ATMOSPHERIC CONDITIONS</h2>
+                        <span id="risk-badge" class="px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Tier 1 Nominal</span>
+                    </div>
+                    <p id="risk-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed">Gas concentration is within safe baseline levels (<350 estimated PPM). No airborne toxic hazards or combustion pollutants detected.</p>
+                </div>
+
+                <!-- Large Status Icon -->
+                <div id="risk-icon-box" class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg shrink-0">
+                    <i id="risk-icon" class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <!-- Gas Progress Bar & Threshold Marks -->
+            <div class="mt-6 pt-4 border-t border-slate-800/80">
+                <div class="flex justify-between text-[11px] font-mono text-slate-400 mb-2 font-medium">
+                    <span class="text-emerald-400"><i class="fa-solid fa-leaf mr-1"></i>Safe (< 350 PPM)</span>
+                    <span class="text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Warning (350 - 650 PPM)</span>
+                    <span class="text-rose-400"><i class="fa-solid fa-radiation mr-1"></i>Danger / Evacuate (> 650 PPM)</span>
+                </div>
+                <div class="w-full bg-slate-900 h-4 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
+                    <div id="risk-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 22%;"></div>
+                </div>
+            </div>
+
+            <!-- Action Protocol & Multilingual Emergency Voice Hub -->
+            <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 text-xs">
+                    <span class="text-slate-400 font-semibold uppercase font-mono">Action Protocol:</span>
+                    <span id="protocol-badge" class="px-3 py-1 rounded-full font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Continuous monitoring active. Atmospheric quality safe for human exposure.</span>
+                </div>
+
+                <!-- Speech Test Buttons for 5 Languages -->
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="text-slate-400 font-mono hidden sm:inline">Voice Test:</span>
+                    <button onclick="triggerVoiceAlert('ar')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-medium transition" title="Arabic (عربي)">عربي</button>
+                    <button onclick="triggerVoiceAlert('en')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-medium transition" title="English">EN</button>
+                    <button onclick="triggerVoiceAlert('ur')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-medium transition" title="Urdu (اردو)">اردو</button>
+                    <button onclick="triggerVoiceAlert('hi')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-medium transition" title="Hindi (हिंदी)">हिंदी</button>
+                    <button onclick="triggerVoiceAlert('bn')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-medium transition" title="Bengali (বাংলা)">বাংলা</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation & Hardware Live Control Hub -->
+        <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col xl:flex-row items-center justify-between gap-5">
+            <div class="flex items-center space-x-4 w-full xl:w-auto">
+                <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20">
                     <i class="fa-solid fa-sliders text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-white">Simulation & Telemetry Control Hub</h2>
-                    <p class="text-xs text-gray-400">Switch between live simulation slider and hardware feed.</p>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Interactive Hardware & Simulation Testing Hub</h3>
+                    <p class="text-xs text-slate-400">Control gas levels and toggle orbital simulation parameters for live evaluation.</p>
                 </div>
             </div>
 
-            <!-- Mode Selector & Sliders -->
-            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <div class="flex bg-space-800 p-1 rounded-xl border border-gray-700 text-xs">
-                    <button id="mode-sim" onclick="setMode('simulation')" class="px-3 py-1.5 rounded-lg font-medium bg-cyan-600 text-white transition">Simulation Mode</button>
-                    <button id="mode-hardware" onclick="setMode('hardware')" class="px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition">Live Hardware</button>
+            <div class="flex flex-wrap items-center justify-end gap-3 w-full xl:w-auto">
+                <!-- Preset Buttons -->
+                <div class="flex space-x-2">
+                    <button onclick="applyPreset(200)" class="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-mono transition">Safe (200 PPM)</button>
+                    <button onclick="applyPreset(450)" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-mono transition">Warning (450 PPM)</button>
+                    <button onclick="applyPreset(800)" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-mono transition">Critical Leak (800 PPM)</button>
                 </div>
 
-                <!-- Simulation Slider Wrapper -->
-                <div id="sim-control-wrapper" class="flex items-center space-x-3 bg-space-800 px-4 py-2 rounded-xl border border-gray-750">
-                    <span class="text-xs text-gray-400 whitespace-nowrap">Gas Level:</span>
-                    <input type="range" id="gas-slider" min="100" max="1000" value="220" oninput="updateSimulationGas(this.value)" class="w-32 sm:w-40 accent-cyan-500 cursor-pointer">
-                    <span id="slider-val-display" class="font-mono text-xs text-cyan-400 w-12 text-right">220 ppm</span>
+                <!-- Slider -->
+                <div class="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-2xl border border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">Gas Level:</span>
+                    <input type="range" id="sim-gas-slider" min="100" max="1000" value="220" oninput="manualGasUpdate(this.value)" class="w-28 sm:w-36 accent-cyan-400 cursor-pointer">
+                    <span id="slider-ppm-readout" class="font-mono text-xs font-bold text-cyan-400 w-16 text-right">220 PPM</span>
                 </div>
+
+                <!-- Orbital Cycle Auto-Toggle -->
+                <button id="orbit-cycle-btn" onclick="toggleOrbitalCycle()" class="px-3.5 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-2xl text-xs font-sans font-medium transition flex items-center space-x-2">
+                    <i id="orbit-cycle-icon" class="fa-solid fa-toggle-on text-purple-400"></i>
+                    <span>Orbital Physics Simulation: ON</span>
+                </button>
             </div>
         </div>
 
-        <!-- Top Row: Risk Assessment & Core Gas Telemetry -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Risk Banner / Status Card (Spans 2 cols) -->
-            <div id="risk-card" class="glass-panel p-6 rounded-3xl border border-emerald-500/30 flex flex-col justify-between transition-all duration-500 glow-green lg:col-span-2">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <div class="flex items-center space-x-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
-                            <i class="fa-solid fa-shield-halved text-cyan-400"></i>
-                            <span>Mission Threat Assessment</span>
-                        </div>
-                        <h3 id="risk-title" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">SAFE: NORMAL ATMOSPHERE</h3>
-                    </div>
-                    <div id="risk-icon-wrapper" class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl border border-emerald-500/30">
-                        <i id="risk-icon" class="fa-solid fa-check-circle"></i>
-                    </div>
-                </div>
+        <!-- Grid Layout: Mandatory Subsystems & Payloads -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 
-                <div class="my-6">
-                    <div class="flex justify-between text-xs font-mono mb-2 text-gray-400">
-                        <span>Safe (&lt;350 ppm)</span>
-                        <span>Warning (350-650 ppm)</span>
-                        <span>Danger (&gt;650 ppm)</span>
-                    </div>
-                    <!-- Custom Progress Bar -->
-                    <div class="w-full bg-space-800 h-4 rounded-full overflow-hidden p-0.5 border border-gray-700 relative">
-                        <div id="gas-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 22%;"></div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-800">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xs text-gray-400">Action Protocol:</span>
-                        <span id="protocol-text" class="text-xs font-medium text-emerald-300 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">All systems nominal. Monitoring active.</span>
-                    </div>
-                    
-                    <!-- Multilingual Voice Trigger Quick Buttons -->
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs text-gray-400">Voice Alert:</span>
-                        <button onclick="speakAlert('ar')" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-xs font-medium rounded-lg border border-gray-700 text-cyan-400 transition" title="Arabic (ar-AE)">عربي</button>
-                        <button onclick="speakAlert('en')" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-xs font-medium rounded-lg border border-gray-700 text-cyan-400 transition" title="English (en-US)">EN</button>
-                        <button onclick="speakAlert('ur')" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-xs font-medium rounded-lg border border-gray-700 text-cyan-400 transition" title="Urdu (ur-PK)">اردو</button>
-                        <button onclick="speakAlert('hi')" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-xs font-medium rounded-lg border border-gray-700 text-cyan-400 transition" title="Hindi (hi-IN)">हिंदी</button>
-                        <button onclick="speakAlert('bn')" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-xs font-medium rounded-lg border border-gray-700 text-cyan-400 transition" title="Bengali (bn-BD)">বাংলা</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gas Sensor Live Gauge Card -->
-            <div class="glass-panel p-6 rounded-3xl border border-gray-800 flex flex-col justify-between">
+            <!-- 1. MQ-135 / MQ-2 Primary Gas Sensor (Payload Proxy) -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
                 <div>
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">MQ-135 Gas Sensor</span>
-                        <span class="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20">Estimated PPM</span>
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">MQ-135 Gas Payload</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono bg-cyan-500/10 text-cyan-400 rounded-md border border-cyan-500/20">Primary Hazard</span>
                     </div>
-                    <div class="mt-4 flex items-baseline space-x-2">
-                        <span id="gas-ppm-val" class="text-5xl font-extrabold font-mono text-white tracking-tight">220</span>
-                        <span class="text-sm font-medium text-gray-400">ppm</span>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <span id="card-gas-ppm" class="text-4xl font-extrabold font-mono text-white tracking-tight">220</span>
+                        <span class="text-xs font-medium text-slate-400">Est. PPM</span>
                     </div>
                 </div>
 
-                <div class="space-y-3 mt-6 pt-6 border-t border-gray-800">
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Sensor Voltage (ADC):</span>
-                        <span id="sensor-voltage" class="font-mono text-cyan-400">1.12 V</span>
+                <div class="space-y-2 text-xs font-mono pt-3 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">ADC Pin Voltage:</span>
+                        <span id="card-gas-volts" class="text-cyan-400 font-bold">1.12 V</span>
                     </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Heater Status (5V):</span>
-                        <span class="font-mono text-emerald-400 flex items-center"><i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i>Active (150mA)</span>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Signal Attenuation:</span>
+                        <span class="text-slate-200">1k/1.5k Divider</span>
                     </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Response Latency:</span>
-                        <span class="font-mono text-gray-300">&lt; 1.2s</span>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Heater Rail (5V):</span>
+                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-fire text-[10px] mr-1"></i>Active (148.5mA)</span>
                     </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div class="pt-2">
+                    <div id="gas-interp-badge" class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-info text-xs mt-0.5 shrink-0"></i>
+                        <span><strong>Mission Relevance:</strong> Concentration below 350 PPM threshold. Atmospheric quality safe for human exposure.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ESP32-CAM (OV2640) Optical Camera Payload -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">ESP32-CAM (OV2640)</span>
+                    <span class="px-2 py-0.5 text-[10px] font-mono bg-purple-500/10 text-purple-300 rounded-md border border-purple-500/20">Optical Frame</span>
+                </div>
+
+                <!-- Canvas Preview Frame -->
+                <div class="relative w-full h-32 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center">
+                    <canvas id="camera-canvas" class="w-full h-full object-cover"></canvas>
+                    <div class="absolute top-2 left-2 px-2 py-0.5 bg-slate-950/80 text-[10px] font-mono text-cyan-400 rounded border border-slate-800">
+                        UXGA 1600x1200
+                    </div>
+                    <div id="cam-timestamp" class="absolute bottom-2 right-2 px-2 py-0.5 bg-slate-950/80 text-[9px] font-mono text-slate-300 rounded border border-slate-800">
+                        12:00:00 UTC
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-mono text-slate-400">Plume Verification:</span>
+                    <button onclick="captureCameraFrame()" class="px-3 py-1 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-sans font-medium transition flex items-center space-x-1">
+                        <i class="fa-solid fa-camera text-xs"></i>
+                        <span>Snap Frame</span>
+                    </button>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div id="cam-interp-badge" class="p-2.5 rounded-2xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-eye text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Optical validation stream synced. Provides visual terrain/smoke context during hazard events.</span>
+                </div>
+            </div>
+
+            <!-- 3. BME280 External Atmospheric Payload -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">BME280 Atmospheric</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono bg-blue-500/10 text-blue-400 rounded-md border border-blue-500/20">External Sensor</span>
+                    </div>
+                    <div class="mt-3 grid grid-cols-3 gap-2 text-center font-mono">
+                        <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">Temp</div>
+                            <div id="bme-temp" class="text-sm font-bold text-amber-400">26.4°C</div>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">Hum</div>
+                            <div id="bme-hum" class="text-sm font-bold text-blue-400">48.2%</div>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">Press</div>
+                            <div id="bme-press" class="text-xs font-bold text-purple-300">1013hPa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1 text-xs font-mono pt-2 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">MQ Gas Compensation:</span>
+                        <span id="bme-offset" class="text-cyan-400 font-bold">Δ -2.4 PPM Offset</span>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div class="p-2.5 rounded-2xl bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-cloud-sun text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Ambient humidity & temp applied to dynamically recalibrate MQ sensor resistance drift.</span>
+                </div>
+            </div>
+
+            <!-- 4. TMP102 Internal PCB Core Thermal Guard (TCS) -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">TMP102 Thermal Guard</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono bg-amber-500/10 text-amber-300 rounded-md border border-amber-500/20">Internal TCS</span>
+                    </div>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <span id="tmp102-val" class="text-4xl font-extrabold font-mono text-white tracking-tight">38.5</span>
+                        <span class="text-xs font-medium text-slate-400">°C Internal Core</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs font-mono pt-3 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Thermal Threshold Limit:</span>
+                        <span class="text-amber-400 font-bold">55.0 °C Max</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">PCB Health Status:</span>
+                        <span id="tmp102-status" class="text-emerald-400 font-bold">NOMINAL (<55°C)</span>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div id="tmp102-interp-badge" class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-shield-heart text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Satellite core electronics within safe operating temperature. Zero component throttling.</span>
+                </div>
+            </div>
+
+            <!-- 5. INA219 Power & EPS Bus Monitor -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">INA219 EPS Power Monitor</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono bg-emerald-500/10 text-emerald-400 rounded-md border border-emerald-500/20">Power Bus</span>
+                    </div>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <span id="ina-volts" class="text-4xl font-extrabold font-mono text-white tracking-tight">4.12</span>
+                        <span class="text-xs font-medium text-slate-400">V (18650 Battery)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs font-mono pt-3 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Current Draw:</span>
+                        <span id="ina-current" class="text-cyan-400 font-bold">198.5 mA</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Total Bus Power Draw:</span>
+                        <span id="ina-power" class="text-purple-300 font-bold">817.8 mW</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Net Battery Balance:</span>
+                        <span id="ina-charge-status" class="text-emerald-400 font-bold">+120mA Solar Surplus</span>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-bolt text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> EPS bus voltage stable (>3.6V limit). Solar array providing positive energy balance.</span>
+                </div>
+            </div>
+
+            <!-- 6. MPU-6050 6-Axis IMU (ADCS Attitude & Orientation) -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">MPU-6050 ADCS IMU</span>
+                    <span class="px-2 py-0.5 text-[10px] font-mono bg-purple-500/10 text-purple-300 rounded-md border border-purple-500/20">Orientation</span>
+                </div>
+
+                <!-- Attitude Tilt Visualizer & Angle Readouts -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center attitude-box shrink-0 overflow-hidden">
+                        <div id="imu-cube" class="w-10 h-10 bg-cyan-500/30 border border-cyan-400 rounded-lg flex items-center justify-center text-[10px] text-cyan-200 font-mono shadow-md">
+                            1U
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 text-xs font-mono flex-1">
+                        <div class="flex justify-between"><span class="text-slate-400">Pitch:</span><span id="imu-pitch" class="text-cyan-400 font-bold">-1.2°</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">Roll:</span><span id="imu-roll" class="text-cyan-400 font-bold">+0.8°</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">Yaw:</span><span id="imu-yaw" class="text-purple-300 font-bold">+182.4°</span></div>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div class="p-2.5 rounded-2xl bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-arrows-spin text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Nadir pointing alignment stable (<2.0° error margin). Optical payload oriented toward surface.</span>
+                </div>
+            </div>
+
+            <!-- 7. LDR Solar Flux & Orbital Phase (ADCS/EPS) -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">LDR Sun & Orbit Phase</span>
+                        <span id="orbit-badge" class="px-2 py-0.5 text-[10px] font-mono bg-amber-500/10 text-amber-300 rounded-md border border-amber-500/20">SUNLIGHT PHASE</span>
+                    </div>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <span id="ldr-flux" class="text-4xl font-extrabold font-mono text-white tracking-tight">88.5</span>
+                        <span class="text-xs font-medium text-slate-400">% Solar Flux</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs font-mono pt-3 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Solar Cell Generation:</span>
+                        <span id="solar-watts" class="text-amber-400 font-bold">1.25 W (Active)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Orbit Transition:</span>
+                        <span class="text-slate-300">Eclipse in ~32 min</span>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div id="ldr-interp-badge" class="p-2.5 rounded-2xl bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-sun text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Illumination high. Battery charging enabled and thermal load from solar radiation actively logged.</span>
+                </div>
+            </div>
+
+            <!-- 8. Micro SD Black-Box Data Logger (CDHS) -->
+            <div class="glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase font-mono">Micro SD Black-Box</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono bg-emerald-500/10 text-emerald-400 rounded-md border border-emerald-500/20">LOGGING ACTIVE</span>
+                    </div>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <span id="sd-sectors" class="text-4xl font-extrabold font-mono text-white tracking-tight">14,892</span>
+                        <span class="text-xs font-medium text-slate-400">Sectors Written</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs font-mono pt-3 border-t border-slate-800/80 text-slate-300">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Target File:</span>
+                        <span class="text-cyan-400 font-bold">LOG_20261029.CSV</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Storage Health:</span>
+                        <span class="text-emerald-400 font-bold">100% (4.2 MB / 16 GB)</span>
+                    </div>
+                </div>
+
+                <!-- Contextual Interpretation Badge -->
+                <div class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2">
+                    <i class="fa-solid fa-database text-xs mt-0.5 shrink-0"></i>
+                    <span><strong>Mission Relevance:</strong> Telemetry buffered in non-volatile memory. Prevents data loss during ground station radio blackouts.</span>
                 </div>
             </div>
 
         </div>
 
-        <!-- Middle Row: Environmental & Satellite Housekeeping (EPS / CDHS) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Real-Time Telemetry Data Stream Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            <!-- BME280 Temperature -->
-            <div class="glass-panel p-5 rounded-3xl border border-gray-800 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-gray-800/40 text-7xl pointer-events-none">
-                    <i class="fa-solid fa-temperature-high"></i>
-                </div>
+            <!-- Chart 1: Gas Concentration Stream -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">BME280 Temperature</span>
-                    <div class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
-                        <i class="fa-solid fa-thermometer"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-baseline space-x-2">
-                    <span id="temp-val" class="text-3xl font-bold font-mono text-white">26.4</span>
-                    <span class="text-lg text-gray-400">°C</span>
-                </div>
-                <p class="text-[11px] text-gray-500 mt-2">Core compensation active</p>
-            </div>
-
-            <!-- BME280 Humidity -->
-            <div class="glass-panel p-5 rounded-3xl border border-gray-800 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-gray-800/40 text-7xl pointer-events-none">
-                    <i class="fa-solid fa-droplet"></i>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Relative Humidity</span>
-                    <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                        <i class="fa-solid fa-droplet"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-baseline space-x-2">
-                    <span id="humidity-val" class="text-3xl font-bold font-mono text-white">48.2</span>
-                    <span class="text-lg text-gray-400">%</span>
-                </div>
-                <p class="text-[11px] text-gray-500 mt-2">Dew point: 14.5 °C</p>
-            </div>
-
-            <!-- BME280 Pressure -->
-            <div class="glass-panel p-5 rounded-3xl border border-gray-800 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-gray-800/40 text-7xl pointer-events-none">
-                    <i class="fa-solid fa-gauge-high"></i>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Atmospheric Pressure</span>
-                    <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                        <i class="fa-solid fa-compass"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-baseline space-x-2">
-                    <span id="pressure-val" class="text-3xl font-bold font-mono text-white">1013.2</span>
-                    <span class="text-sm text-gray-400">hPa</span>
-                </div>
-                <p class="text-[11px] text-gray-500 mt-2">Altitude approx. 12m</p>
-            </div>
-
-            <!-- EPS & Battery Status -->
-            <div class="glass-panel p-5 rounded-3xl border border-gray-800 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-gray-800/40 text-7xl pointer-events-none">
-                    <i class="fa-solid fa-battery-full"></i>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">EPS Battery (18650)</span>
-                    <div id="battery-icon-wrap" class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                        <i id="battery-icon" class="fa-solid fa-battery-three-quarters"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-baseline space-x-2">
-                    <span id="battery-val" class="text-3xl font-bold font-mono text-white">4.12</span>
-                    <span class="text-sm text-gray-400">V</span>
-                </div>
-                <div class="flex items-center justify-between mt-2 text-[11px]">
-                    <span class="text-emerald-400 font-medium"><i class="fa-solid fa-bolt mr-1"></i>Solar Charging (+120mA)</span>
-                    <span class="text-gray-400 font-mono">94%</span>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Bottom Row: Historical Telemetry Chart & Satellite Telemetry Diagnostics -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Historical Trend Chart (2 cols) -->
-            <div class="glass-panel p-6 rounded-3xl border border-gray-800 lg:col-span-2 flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
-                        <div class="w-3 h-3 rounded-full bg-cyan-500"></div>
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mission Telemetry Trends (Gas PPM & Battery)</h3>
+                        <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Real-Time Gas Concentration Stream (PPM)</h3>
                     </div>
-                    <span class="text-xs text-gray-400 font-mono">Real-time Stream</span>
+                    <span class="text-xs text-slate-400 font-mono">Interval: 2s</span>
                 </div>
                 <div class="relative w-full h-64 sm:h-72">
-                    <canvas id="telemetryChart"></canvas>
+                    <canvas id="gasChart"></canvas>
                 </div>
             </div>
 
-            <!-- Satellite Housekeeping & Link Diagnostics -->
-            <div class="glass-panel p-6 rounded-3xl border border-gray-800 flex flex-col justify-between space-y-6">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">CDHS Housekeeping</h3>
-                        <span class="px-2 py-0.5 text-[10px] bg-space-800 text-cyan-400 rounded-md font-mono border border-gray-700">ESP32 WiFi</span>
+            <!-- Chart 2: Satellite Bus Housekeeping Telemetry -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Satellite Bus Health (TMP102 Core Temp & INA219 Voltage)</h3>
                     </div>
-
-                    <div class="space-y-4">
-                        <!-- RSSI Signal Strength -->
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-space-800/60 border border-gray-750">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-wifi text-cyan-400"></i>
-                                <div>
-                                    <div class="text-xs font-medium text-white">RSSI Signal Strength</div>
-                                    <div class="text-[10px] text-gray-400">Ground Station Link</div>
-                                </div>
-                            </div>
-                            <span class="font-mono text-sm font-bold text-emerald-400">-64 dBm</span>
-                        </div>
-
-                        <!-- Core Temperature -->
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-space-800/60 border border-gray-750">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-microchip text-cyan-400"></i>
-                                <div>
-                                    <div class="text-xs font-medium text-white">ESP32 Core Temp</div>
-                                    <div class="text-[10px] text-gray-400">On-board computer</div>
-                                </div>
-                            </div>
-                            <span class="font-mono text-sm font-bold text-white">38.5 °C</span>
-                        </div>
-
-                        <!-- Packet Count -->
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-space-800/60 border border-gray-750">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-cube text-cyan-400"></i>
-                                <div>
-                                    <div class="text-xs font-medium text-white">Telemetry Packets</div>
-                                    <div class="text-[10px] text-gray-400">Frames transmitted</div>
-                                </div>
-                            </div>
-                            <span id="packet-count" class="font-mono text-sm font-bold text-cyan-400">1428</span>
-                        </div>
-
-                        <!-- Orbit Status -->
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-space-800/60 border border-gray-750">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-earth-americas text-cyan-400"></i>
-                                <div>
-                                    <div class="text-xs font-medium text-white">Orbital Phase</div>
-                                    <div class="text-[10px] text-gray-400">LEO 480km Sun-Sync</div>
-                                </div>
-                            </div>
-                            <span class="font-mono text-xs font-bold text-emerald-400">Sunlit (Charging)</span>
-                        </div>
-                    </div>
+                    <span class="text-xs text-slate-400 font-mono">Dual-Axis Telemetry</span>
                 </div>
-
-                <div class="pt-4 border-t border-gray-800 text-center">
-                    <p class="text-[11px] text-gray-500">SatForge Competition • SpacePoint & National Space Academy</p>
+                <div class="relative w-full h-64 sm:h-72">
+                    <canvas id="healthChart"></canvas>
                 </div>
             </div>
 
@@ -406,100 +577,151 @@
 
     </main>
 
+    <!-- Footer Documentation Note -->
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 text-center text-xs text-slate-500 font-mono">
+        <p>GasTella CubeSat Ground Station Control Interface • Designed for SatForge Competition • SpacePoint & National Space Academy</p>
+    </footer>
+
     <!-- JavaScript Application Logic -->
     <script>
-        // --- Global State Variables ---
-        let currentMode = 'simulation'; // 'simulation' or 'hardware'
-        let currentGasPPM = 220;
+        // --- Global Mission Telemetry State ---
+        let simMode = 'simulation';
+        let orbitalCycleActive = true;
         let isMuted = false;
+        let currentGasPPM = 220;
         let packetCounter = 1428;
+        let sdSectorCounter = 14892;
         let lastSpokenRisk = 'safe';
+        let orbitTimeCounter = 0; // Tracks orbit phase
+        let isEclipse = false;
 
-        // Multilingual voice warning translations as required by mission brief
+        // Telemetry dataset storage for CSV export
+        const telemetryHistory = [];
+
+        // Multilingual Emergency Spoken Warning Messages
         const voiceMessages = {
             en: {
-                safe: "Atmosphere is safe. Air quality is normal.",
-                warning: "Warning. Elevated gas levels detected.",
-                danger: "Danger. Toxic gas leak detected. Evacuate immediately."
+                safe: "Atmospheric conditions nominal. Air quality is safe.",
+                warning: "Warning! Elevated air pollutants detected. Monitor area.",
+                danger: "Critical Emergency! Toxic gas leak detected. Evacuate immediately!"
             },
             ar: {
-                safe: "الجو آمن. جودة الهواء طبيعية.",
-                warning: "تحذير. تم اكتشاف مستويات غاز مرتفعة.",
-                danger: "خطر. تم اكتشاف تسرب غاز سام. قم بالخلاء فوراً."
+                safe: "الظروف الجوية طبيعية. جودة الهواء آمنة.",
+                warning: "تحذير! تم اكتشاف ارتفاع في نسبة الغازات. يرجى مراقبة المنطقة.",
+                danger: "خطر طارئ! تم اكتشاف تسرب غاز سام. يجب الإخلاء فوراً!"
             },
             ur: {
-                safe: "ماحول محفوظ ہے۔ ہوا کا معیار نارمل ہے۔",
-                warning: "وارننگ۔ گیس کی سطح میں اضافہ محسوس کیا گیا ہے۔",
-                danger: "خطرہ۔ زہریلی گیس کا اخراج۔ فوری طور پر انخلاء کریں۔"
+                safe: "فضائی حالات نارمل ہیں۔ ہوا کا معیار محفوظ ہے۔",
+                warning: "وارننگ! گیس کی سطح میں اضافہ دیکھا گیا ہے۔",
+                danger: "شديد خطرہ! زہریلی گیس کا اخراج۔ فوری طور پر انخلاء کریں!"
             },
             hi: {
-                safe: "वातावरण सुरक्षित है। हवा की गुणवत्ता सामान्य है।",
-                warning: "चेतावनी। उच्च गैस स्तर का पता चला है।",
-                danger: "खतरा। जहरीली गैस का रिसाव। तुरंत बाहर निकलें।"
+                safe: "वातावरण की स्थिति सामान्य है। हवा सुरक्षित है।",
+                warning: "चेतावनी! वायु प्रदूषकों का स्तर बढ़ा हुआ है।",
+                danger: "आपातकालीन खतरा! जहरीली गैस का रिसाव। तुरंत बाहर निकलें!"
             },
             bn: {
-                safe: "পরিবেশ নিরাপদ। বাতাসের গুণমান স্বাভাবিক।",
-                warning: "সতর্কতা। উচ্চ গ্যাসের মাত্রা সনাক্ত করা হয়েছে।",
-                danger: "বিপদ। বিষাক্ত গ্যাসের লিক সনাক্ত হয়েছে। অবিলম্বে সরে যান।"
+                safe: "বায়ুমণ্ডলের অবস্থা স্বাভাবিক। বাতাস নিরাপদ।",
+                warning: "সতর্কতা! উচ্চ গ্যাসের মাত্রা সনাক্ত করা হয়েছে।",
+                danger: "জরুরী বিপদ! বিষাক্ত গ্যাসের লিক। অবিলম্বে সরে যান!"
             }
         };
 
-        // --- Custom Modal Functions (Replacing alert()) ---
-        function showModal(title, message, isWarning = false) {
+        // --- Custom Aerospace Modal Functions ---
+        function showModal(title, bodyText, isWarning = false) {
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-message').innerText = message;
-            const iconContainer = document.getElementById('modal-icon-container');
+            document.getElementById('modal-body').innerText = bodyText;
+            const iconBg = document.getElementById('modal-icon-bg');
+            const icon = document.getElementById('modal-icon');
+            
             if (isWarning) {
-                iconContainer.className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/20 text-red-400';
-                iconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i>';
+                iconBg.className = "w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl border border-rose-500/30";
+                icon.className = "fa-solid fa-triangle-exclamation";
             } else {
-                iconContainer.className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/20 text-cyan-400';
-                iconContainer.innerHTML = '<i class="fa-solid fa-satellite text-xl"></i>';
+                iconBg.className = "w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl border border-cyan-500/30";
+                icon.className = "fa-solid fa-satellite";
             }
-            document.getElementById('notification-modal').classList.remove('hidden');
+            document.getElementById('system-modal').classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('notification-modal').classList.add('hidden');
+            document.getElementById('system-modal').classList.add('hidden');
         }
 
-        // --- UTC & MET Clocks ---
+        // --- Real-Time UTC & MET Clock ---
         function updateClocks() {
             const now = new Date();
-            document.getElementById('utc-clock').innerText = now.toUTCString().slice(17, 25) + ' UTC';
+            document.getElementById('utc-clock').innerText = now.toUTCString().slice(17, 25) + " UTC";
         }
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // --- Mode Switching ---
-        function setMode(mode) {
-            currentMode = mode;
-            const btnSim = document.getElementById('mode-sim');
-            const btnHard = document.getElementById('mode-hardware');
-            const simWrapper = document.getElementById('sim-control-wrapper');
+        // --- Camera Simulation Canvas Drawer ---
+        function drawCameraFrame(hasSmoke = false) {
+            const canvas = document.getElementById('camera-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 320;
+            canvas.height = 180;
 
-            if (mode === 'simulation') {
-                btnSim.className = 'px-3 py-1.5 rounded-lg font-medium bg-cyan-600 text-white transition';
-                btnHard.className = 'px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition';
-                simWrapper.classList.remove('opacity-50', 'pointer-events-none');
-                showModal('Simulation Mode Active', 'Interactive gas slider is now controlling the telemetry feed for demonstration and testing.');
-            } else {
-                btnHard.className = 'px-3 py-1.5 rounded-lg font-medium bg-cyan-600 text-white transition';
-                btnSim.className = 'px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition';
-                simWrapper.classList.add('opacity-50', 'pointer-events-none');
-                showModal('Live Hardware Feed', 'Connecting to ESP32 telemetry node over WiFi (IP: 192.168.4.1)...');
+            // Draw terrain gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, 320, 180);
+            bgGrad.addColorStop(0, '#020617');
+            bgGrad.addColorStop(0.5, '#0f172a');
+            bgGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 320, 180);
+
+            // Draw grid lines simulating ground imagery mapping
+            ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+            ctx.lineWidth = 1;
+            for(let x = 0; x < 320; x += 30) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 180); ctx.stroke();
             }
+            for(let y = 0; y < 180; y += 30) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(320, y); ctx.stroke();
+            }
+
+            // Draw target industrial zone boxes
+            ctx.strokeStyle = hasSmoke ? '#f43f5e' : '#10b981';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(100, 50, 120, 80);
+
+            // If elevated or danger, render simulated plume cloud
+            if (hasSmoke) {
+                const plumeGrad = ctx.createRadialGradient(160, 90, 5, 160, 90, 55);
+                plumeGrad.addColorStop(0, 'rgba(244, 63, 94, 0.7)');
+                plumeGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.4)');
+                plumeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = plumeGrad;
+                ctx.beginPath();
+                ctx.arc(160, 90, 55, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Crosshair overlay
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(160, 80); ctx.lineTo(160, 100); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(150, 90); ctx.lineTo(170, 90); ctx.stroke();
+
+            // Update timestamp
+            document.getElementById('cam-timestamp').innerText = new Date().toUTCString().slice(17, 25) + " UTC";
         }
 
-        // --- Text-to-Speech Voice Alert System ---
-        function speakAlert(langCode, forcedLevel = null) {
-            if (isMuted && !forcedLevel) return;
-            const level = forcedLevel || getRiskLevel(currentGasPPM);
-            const textToSpeak = voiceMessages[langCode] && voiceMessages[langCode][level] ? voiceMessages[langCode][level] : voiceMessages['en'][level];
+        function captureCameraFrame() {
+            drawCameraFrame(currentGasPPM >= 350);
+            showModal("ESP32-CAM Image Acquired", "OV2640 optical payload successfully captured and downlinked a fresh 1600x1200 frame to the ground station buffer.");
+        }
+
+        // --- Text-to-Speech Emergency Alert System ---
+        function triggerVoiceAlert(langCode, forceRisk = null) {
+            if (isMuted && !forceRisk) return;
+            const targetRisk = forceRisk || getRiskTier(currentGasPPM);
+            const message = voiceMessages[langCode] && voiceMessages[langCode][targetRisk] ? voiceMessages[langCode][targetRisk] : voiceMessages['en'][targetRisk];
 
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Stop ongoing speech
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(message);
                 utterance.lang = langCode === 'ar' ? 'ar-AE' : langCode === 'ur' ? 'ur-PK' : langCode === 'hi' ? 'hi-IN' : langCode === 'bn' ? 'bn-BD' : 'en-US';
                 utterance.rate = 1.0;
                 window.speechSynthesis.speak(utterance);
@@ -508,117 +730,207 @@
 
         function toggleAudioMute() {
             isMuted = !isMuted;
-            const btn = document.getElementById('mute-icon');
+            const icon = document.getElementById('mute-icon');
             if (isMuted) {
-                btn.className = 'fa-solid fa-volume-xmark text-red-400';
-                showModal('Voice Alerts Muted', 'Automated and manual text-to-speech audio outputs are muted.');
+                icon.className = "fa-solid fa-volume-xmark text-rose-400";
+                showModal("Voice Alerts Muted", "Ground station automated text-to-speech outputs disabled.");
             } else {
-                btn.className = 'fa-solid fa-volume-high';
-                showModal('Voice Alerts Enabled', 'Browser text-to-speech engine active for multi-language warnings.');
+                icon.className = "fa-solid fa-volume-high text-cyan-400";
+                showModal("Voice Alerts Active", "Multi-lingual emergency voice broadcasts enabled (AR, EN, UR, HI, BN).");
             }
         }
 
-        // --- Determine Risk Tier ---
-        function getRiskLevel(ppm) {
+        // --- Risk Assessment Helper ---
+        function getRiskTier(ppm) {
             if (ppm < 350) return 'safe';
             if (ppm <= 650) return 'warning';
             return 'danger';
         }
 
-        // --- Update UI Based on Gas PPM ---
-        function updateSimulationGas(val) {
-            currentGasPPM = parseInt(val);
-            document.getElementById('gas-slider').value = currentGasPPM;
-            document.getElementById('slider-val-display').innerText = currentGasPPM + ' ppm';
-            document.getElementById('gas-ppm-val').innerText = currentGasPPM;
+        // --- Core UI State Synchronizer ---
+        function updateGasTelemetryUI(ppm) {
+            currentGasPPM = parseInt(ppm);
+            document.getElementById('sim-gas-slider').value = currentGasPPM;
+            document.getElementById('slider-ppm-readout').innerText = currentGasPPM + " PPM";
+            document.getElementById('card-gas-ppm').innerText = currentGasPPM;
 
-            // Voltage divider calculation: 5V max sensor output scaled to 3.0V ADC safe range
-            const simulatedVoltage = ((currentGasPPM / 1000) * 3.0).toFixed(2);
-            document.getElementById('sensor-voltage').innerText = simulatedVoltage + ' V';
+            // Voltage divider calculation (5V max sensor output scaled to 3.0V ADC safe limit)
+            const adcVoltage = ((currentGasPPM / 1000) * 3.0).toFixed(2);
+            document.getElementById('card-gas-volts').innerText = adcVoltage + " V";
 
-            // Progress bar percentage (max 1000 ppm)
+            // Progress Bar (0 to 1000 PPM)
             const percentage = Math.min(100, Math.max(5, (currentGasPPM / 1000) * 100));
-            const progressBar = document.getElementById('gas-progress-bar');
-            progressBar.style.width = percentage + '%';
+            document.getElementById('risk-progress-bar').style.width = percentage + "%";
 
-            const riskCard = document.getElementById('risk-card');
+            const riskBanner = document.getElementById('risk-banner');
             const riskTitle = document.getElementById('risk-title');
+            const riskBadge = document.getElementById('risk-badge');
+            const riskDesc = document.getElementById('risk-desc');
+            const riskIconBox = document.getElementById('risk-icon-box');
             const riskIcon = document.getElementById('risk-icon');
-            const riskIconWrapper = document.getElementById('risk-icon-wrapper');
-            const protocolText = document.getElementById('protocol-text');
+            const protocolBadge = document.getElementById('protocol-badge');
+            const gasInterp = document.getElementById('gas-interp-badge');
+            const progressBar = document.getElementById('risk-progress-bar');
 
-            const level = getRiskLevel(currentGasPPM);
+            const tier = getRiskTier(currentGasPPM);
 
-            if (level === 'safe') {
-                riskCard.className = 'glass-panel p-6 rounded-3xl border border-emerald-500/30 flex flex-col justify-between transition-all duration-500 glow-green lg:col-span-2';
-                riskTitle.className = 'text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1';
-                riskTitle.innerText = 'SAFE: NORMAL ATMOSPHERE';
-                riskIcon.className = 'fa-solid fa-check-circle';
-                riskIconWrapper.className = 'w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl border border-emerald-500/30';
-                progressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-300';
-                protocolText.className = 'text-xs font-medium text-emerald-300 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20';
-                protocolText.innerText = 'All systems nominal. Monitoring active.';
-                lastSpokenRisk = 'safe';
-            } else if (level === 'warning') {
-                riskCard.className = 'glass-panel p-6 rounded-3xl border border-yellow-500/30 flex flex-col justify-between transition-all duration-500 glow-yellow lg:col-span-2';
-                riskTitle.className = 'text-2xl sm:text-3xl font-extrabold text-yellow-400 mt-1';
-                riskTitle.innerText = 'WARNING: ELEVATED GAS DETECTED';
-                riskIcon.className = 'fa-solid fa-triangle-exclamation';
-                riskIconWrapper.className = 'w-14 h-14 rounded-2xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-2xl border border-yellow-500/30';
-                progressBar.className = 'bg-yellow-500 h-full rounded-full transition-all duration-300';
-                protocolText.className = 'text-xs font-medium text-yellow-300 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20';
-                protocolText.innerText = 'Elevated pollutant levels. Inspect ventilation.';
+            if (tier === 'safe') {
+                riskBanner.className = "glass-panel p-6 rounded-3xl transition-all duration-500 glow-safe";
+                riskTitle.className = "text-2xl sm:text-3xl font-black tracking-tight text-emerald-400";
+                riskTitle.innerText = "SAFE: NORMAL ATMOSPHERIC CONDITIONS";
+                riskBadge.className = "px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                riskBadge.innerText = "Tier 1 Nominal";
+                riskDesc.innerText = "Gas concentration is within safe baseline levels (<350 estimated PPM). No airborne toxic hazards or combustion pollutants detected.";
+                riskIconBox.className = "w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg shrink-0";
+                riskIcon.className = "fa-solid fa-circle-check";
+                protocolBadge.className = "px-3 py-1 rounded-full font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30";
+                protocolBadge.innerText = "Continuous monitoring active. Air safe for continuous human exposure.";
+                progressBar.className = "bg-emerald-500 h-full rounded-full transition-all duration-500";
                 
+                gasInterp.className = "p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2";
+                gasInterp.innerHTML = `<i class="fa-solid fa-circle-info text-xs mt-0.5 shrink-0"></i><span><strong>Mission Relevance:</strong> Concentration below 350 PPM. Atmosphere safe for continuous exposure.</span>`;
+                
+                lastSpokenRisk = 'safe';
+            } else if (tier === 'warning') {
+                riskBanner.className = "glass-panel p-6 rounded-3xl transition-all duration-500 glow-warning";
+                riskTitle.className = "text-2xl sm:text-3xl font-black tracking-tight text-amber-400";
+                riskTitle.innerText = "WARNING: ELEVATED POLLUTANTS DETECTED";
+                riskBadge.className = "px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                riskBadge.innerText = "Tier 2 Elevated";
+                riskDesc.innerText = "Air pollutant levels elevated (350 - 650 estimated PPM). Possible industrial emission leak or early combustion detected in zone.";
+                riskIconBox.className = "w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-3xl shadow-lg shrink-0";
+                riskIcon.className = "fa-solid fa-triangle-exclamation";
+                protocolBadge.className = "px-3 py-1 rounded-full font-medium bg-amber-500/10 text-amber-300 border border-amber-500/30";
+                protocolBadge.innerText = "Issue site advisories. Inspect industrial ventilation and plant exhaust stacks.";
+                progressBar.className = "bg-amber-500 h-full rounded-full transition-all duration-500";
+
+                gasInterp.className = "p-2.5 rounded-2xl bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-sans flex items-start space-x-2";
+                gasInterp.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-xs mt-0.5 shrink-0"></i><span><strong>Mission Relevance:</strong> Gas concentration elevated (350-650 PPM). High risk of air quality degradation.</span>`;
+
                 if (lastSpokenRisk !== 'warning') {
-                    speakAlert('en', 'warning');
+                    triggerVoiceAlert('en', 'warning');
                     lastSpokenRisk = 'warning';
                 }
             } else {
-                riskCard.className = 'glass-panel p-6 rounded-3xl border border-red-500/50 flex flex-col justify-between transition-all duration-500 glow-red lg:col-span-2';
-                riskTitle.className = 'text-2xl sm:text-3xl font-extrabold text-red-500 mt-1';
-                riskTitle.innerText = 'DANGER: TOXIC LEAK HAZARD!';
-                riskIcon.className = 'fa-solid fa-radiation';
-                riskIconWrapper.className = 'w-14 h-14 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center text-2xl border border-red-500/40';
-                progressBar.className = 'bg-red-500 h-full rounded-full transition-all duration-300';
-                protocolText.className = 'text-xs font-medium text-red-300 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20';
-                protocolText.innerText = 'CRITICAL ALERT! EVACUATE AREA IMMEDIATELY.';
+                riskBanner.className = "glass-panel p-6 rounded-3xl transition-all duration-500 glow-danger";
+                riskTitle.className = "text-2xl sm:text-3xl font-black tracking-tight text-rose-500";
+                riskTitle.innerText = "CRITICAL DANGER: TOXIC LEAK HAZARD!";
+                riskBadge.className = "px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse";
+                riskBadge.innerText = "Tier 3 Evacuate";
+                riskDesc.innerText = "CRITICAL TOXIC HAZARD THRESHOLD EXCEEDED (>650 estimated PPM)! High chemical concentration detected nearby. Immediate evacuation required.";
+                riskIconBox.className = "w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-3xl shadow-lg shrink-0";
+                riskIcon.className = "fa-solid fa-radiation animate-spin";
+                protocolBadge.className = "px-3 py-1 rounded-full font-medium bg-rose-500/10 text-rose-300 border border-rose-500/30 font-bold";
+                protocolBadge.innerText = "EMERGENCY PROTOCOL ACTIVATED: Dispatched automatic multi-lingual audio warnings to nearby ground nodes!";
+                progressBar.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
+
+                gasInterp.className = "p-2.5 rounded-2xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-[11px] font-sans flex items-start space-x-2";
+                gasInterp.innerHTML = `<i class="fa-solid fa-radiation text-xs mt-0.5 shrink-0"></i><span><strong>Mission Relevance:</strong> DANGER! Concentration exceeds 650 PPM limit. Immediate health risk requiring evacuation.</span>`;
 
                 if (lastSpokenRisk !== 'danger') {
-                    speakAlert('en', 'danger');
+                    triggerVoiceAlert('en', 'danger');
                     lastSpokenRisk = 'danger';
                 }
             }
+
+            // Update Camera Frame with Plume overlay if elevated/danger
+            drawCameraFrame(currentGasPPM >= 350);
         }
 
-        // --- Chart.js Historical Telemetry Setup ---
-        const ctx = document.getElementById('telemetryChart').getContext('2d');
-        const initialLabels = Array.from({length: 15}, (_, i) => `-${(15-i)*5}s`);
-        const initialGasData = Array.from({length: 15}, () => 220);
-        const initialBatteryData = Array.from({length: 15}, () => 4.12);
+        function manualGasUpdate(val) {
+            updateGasTelemetryUI(val);
+        }
 
-        const telemetryChart = new Chart(ctx, {
+        function applyPreset(ppmVal) {
+            updateGasTelemetryUI(ppmVal);
+            showModal("Simulation Scenario Applied", `Target gas concentration set to ${ppmVal} PPM for live demonstration.`);
+        }
+
+        function toggleOrbitalCycle() {
+            orbitalCycleActive = !orbitalCycleActive;
+            const btn = document.getElementById('orbit-cycle-btn');
+            const icon = document.getElementById('orbit-cycle-icon');
+
+            if (orbitalCycleActive) {
+                btn.className = "px-3.5 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-2xl text-xs font-sans font-medium transition flex items-center space-x-2";
+                icon.className = "fa-solid fa-toggle-on text-purple-400";
+                btn.querySelector('span').innerText = "Orbital Physics Simulation: ON";
+                showModal("Orbital Physics Active", "Simulating sunlight vs eclipse transitions, temperature fluctuations, and EPS battery charging dynamics.");
+            } else {
+                btn.className = "px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 rounded-2xl text-xs font-sans font-medium transition flex items-center space-x-2";
+                icon.className = "fa-solid fa-toggle-off text-slate-500";
+                btn.querySelector('span').innerText = "Orbital Physics Simulation: OFF";
+                showModal("Orbital Physics Paused", "Satellite environmental parameters locked to static baseline state.");
+            }
+        }
+
+        // --- Chart.js Configuration & Streaming Setup ---
+        const gasCtx = document.getElementById('gasChart').getContext('2d');
+        const healthCtx = document.getElementById('healthChart').getContext('2d');
+
+        const timeLabels = Array.from({length: 15}, (_, i) => `-${(15-i)*2}s`);
+        const initialGasData = Array.from({length: 15}, () => 220);
+        const initialTempData = Array.from({length: 15}, () => 38.5);
+        const initialVoltsData = Array.from({length: 15}, () => 4.12);
+
+        // Gas Chart
+        const gasChart = new Chart(gasCtx, {
             type: 'line',
             data: {
-                labels: initialLabels,
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Gas Concentration (PPM)',
+                    data: initialGasData,
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } } }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                    y: {
+                        min: 0, max: 1000,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#06b6d4', font: { size: 9 } },
+                        title: { display: true, text: 'Gas PPM', color: '#06b6d4', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // Housekeeping Health Dual-Axis Chart
+        const healthChart = new Chart(healthCtx, {
+            type: 'line',
+            data: {
+                labels: timeLabels,
                 datasets: [
                     {
-                        label: 'Gas Level (PPM)',
-                        data: initialGasData,
-                        borderColor: '#06b6d4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        label: 'TMP102 Core Temp (°C)',
+                        data: initialTempData,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
                         borderWidth: 2,
-                        fill: true,
                         tension: 0.3,
-                        yAxisID: 'y'
+                        yAxisID: 'yTemp'
                     },
                     {
-                        label: 'Battery Voltage (V)',
-                        data: initialBatteryData,
+                        label: 'INA219 Voltage (V)',
+                        data: initialVoltsData,
                         borderColor: '#10b981',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
                         tension: 0.3,
-                        yAxisID: 'y1'
+                        yAxisID: 'yVolts'
                     }
                 ]
             },
@@ -626,82 +938,192 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        labels: { color: '#9ca3af', font: { family: 'Inter', size: 11 } }
-                    }
+                    legend: { labels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } } }
                 },
                 scales: {
-                    x: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                    yTemp: {
+                        type: 'linear', position: 'left', min: 20, max: 70,
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#9ca3af', font: { size: 10 } }
+                        ticks: { color: '#f59e0b', font: { size: 9 } },
+                        title: { display: true, text: 'TMP102 Core (°C)', color: '#f59e0b', font: { size: 10 } }
                     },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        min: 0,
-                        max: 1000,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#06b6d4', font: { size: 10 } },
-                        title: { display: true, text: 'Gas PPM', color: '#06b6d4', font: { size: 10 } }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        min: 3.5,
-                        max: 4.3,
+                    yVolts: {
+                        type: 'linear', position: 'right', min: 3.2, max: 4.4,
                         grid: { drawOnChartArea: false },
-                        ticks: { color: '#10b981', font: { size: 10 } },
-                        title: { display: true, text: 'Voltage (V)', color: '#10b981', font: { size: 10 } }
+                        ticks: { color: '#10b981', font: { size: 9 } },
+                        title: { display: true, text: 'Bus Voltage (V)', color: '#10b981', font: { size: 10 } }
                     }
                 }
             }
         });
 
-        // --- Periodic Telemetry Simulation Loop ---
+        // --- Periodic Telemetry Update Loop (2 Second Interval) ---
         setInterval(() => {
-            if (currentMode === 'simulation') {
-                // Add minor random fluctuation to gas ppm if in simulation mode
-                let jitter = Math.floor(Math.random() * 15) - 7;
-                let newGas = Math.min(1000, Math.max(100, currentGasPPM + jitter));
-                if (Math.abs(jitter) > 10) {
-                    updateSimulationGas(newGas);
+            orbitTimeCounter++;
+
+            // Handle Orbital Sunlight vs Eclipse Simulation Phase
+            if (orbitalCycleActive) {
+                // Every 30 updates, toggle orbit phase
+                if (orbitTimeCounter % 30 === 0) {
+                    isEclipse = !isEclipse;
                 }
-            } else {
-                // Hardware live mock data fetching
-                let liveGas = Math.floor(Math.random() * 80) + 200;
-                updateSimulationGas(liveGas);
             }
 
-            // Update environmental metrics with subtle realism
-            let temp = (26.0 + (Math.random() * 0.8)).toFixed(1);
-            let humidity = (48.0 + (Math.random() * 1.5)).toFixed(1);
-            let voltage = (4.10 + (Math.random() * 0.04)).toFixed(2);
+            // Calculate environmental values based on orbit phase
+            let fluxVal, orbitText, orbitBadgeClass, solarWatts, interpLdrText;
+            let currentDraw, powerWatts, chargeText, voltageVal, coreTemp;
 
-            document.getElementById('temp-val').innerText = temp;
-            document.getElementById('humidity-val').innerText = humidity;
-            document.getElementById('battery-val').innerText = voltage;
+            if (isEclipse) {
+                fluxVal = (Math.random() * 2.0).toFixed(1); // Near 0% light in shadow
+                orbitText = "EARTH ECLIPSE PHASE";
+                orbitBadgeClass = "px-2 py-0.5 text-[10px] font-mono bg-purple-500/10 text-purple-300 rounded-md border border-purple-500/20";
+                solarWatts = "0.00 W (Eclipse)";
+                interpLdrText = "CubeSat in Earth shadow. Solar generation paused; mission running on 18650 battery.";
+                
+                currentDraw = (175.0 + Math.random() * 10.0).toFixed(1);
+                voltageVal = (3.92 - (orbitTimeCounter % 30) * 0.005).toFixed(2);
+                chargeText = "-175mA Discharging";
+                coreTemp = (32.0 + Math.random() * 1.0).toFixed(1);
+            } else {
+                fluxVal = (85.0 + Math.random() * 8.0).toFixed(1); // High flux in sunlight
+                orbitText = "SUNLIGHT PHASE";
+                orbitBadgeClass = "px-2 py-0.5 text-[10px] font-mono bg-amber-500/10 text-amber-300 rounded-md border border-amber-500/20";
+                solarWatts = "1.28 W (Active)";
+                interpLdrText = "Direct solar illumination. EPS array actively charging 18650 battery.";
+                
+                currentDraw = (195.0 + Math.random() * 12.0).toFixed(1);
+                voltageVal = (4.12 + Math.random() * 0.03).toFixed(2);
+                chargeText = "+120mA Solar Surplus";
+                coreTemp = (38.5 + Math.random() * 1.5).toFixed(1);
+            }
 
-            // Increment packet count
+            // Update LDR Card
+            document.getElementById('ldr-flux').innerText = fluxVal;
+            const badgeElem = document.getElementById('orbit-badge');
+            badgeElem.innerText = orbitText;
+            badgeElem.className = orbitBadgeClass;
+            document.getElementById('solar-watts').innerText = solarWatts;
+            document.getElementById('ldr-interp-badge').querySelector('span').innerText = interpLdrText;
+
+            // Update INA219 Card
+            document.getElementById('ina-volts').innerText = voltageVal;
+            document.getElementById('ina-current').innerText = currentDraw + " mA";
+            powerWatts = (parseFloat(voltageVal) * parseFloat(currentDraw)).toFixed(1);
+            document.getElementById('ina-power').innerText = powerWatts + " mW";
+            document.getElementById('ina-charge-status').innerText = chargeText;
+
+            // Update TMP102 Thermal Card
+            document.getElementById('tmp102-val').innerText = coreTemp;
+            const tmpStatus = document.getElementById('tmp102-status');
+            const tmpInterp = document.getElementById('tmp102-interp-badge');
+            
+            if (parseFloat(coreTemp) > 55.0) {
+                tmpStatus.innerText = "WARNING (>55°C)";
+                tmpStatus.className = "text-rose-400 font-bold animate-pulse";
+                tmpInterp.className = "p-2.5 rounded-2xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-[11px] font-sans flex items-start space-x-2";
+                tmpInterp.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-xs mt-0.5 shrink-0"></i><span><strong>Mission Relevance:</strong> THERMAL OVERHEAT WARNING! Core temperature exceeded 55°C limit. Initiating safe mode.</span>`;
+            } else {
+                tmpStatus.innerText = "NOMINAL (<55°C)";
+                tmpStatus.className = "text-emerald-400 font-bold";
+                tmpInterp.className = "p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-sans flex items-start space-x-2";
+                tmpInterp.innerHTML = `<i class="fa-solid fa-shield-heart text-xs mt-0.5 shrink-0"></i><span><strong>Mission Relevance:</strong> Satellite core electronics within safe operating bounds. Zero component throttling.</span>`;
+            }
+
+            // Update BME280 Card
+            let bmeT = (26.0 + Math.random() * 0.8).toFixed(1);
+            let bmeH = (48.0 + Math.random() * 1.5).toFixed(1);
+            let bmeP = (1013.0 + Math.random() * 0.6).toFixed(0);
+            document.getElementById('bme-temp').innerText = bmeT + "°C";
+            document.getElementById('bme-hum').innerText = bmeH + "%";
+            document.getElementById('bme-press').innerText = bmeP + "hPa";
+
+            // Update MPU-6050 Orientation jitter
+            let pitch = (-1.2 + (Math.random() * 0.4 - 0.2)).toFixed(1);
+            let roll = (0.8 + (Math.random() * 0.4 - 0.2)).toFixed(1);
+            let yaw = (182.4 + (Math.random() * 0.2 - 0.1)).toFixed(1);
+            document.getElementById('imu-pitch').innerText = pitch + "°";
+            document.getElementById('imu-roll').innerText = roll + "°";
+            document.getElementById('imu-yaw').innerText = yaw + "°";
+            document.getElementById('imu-cube').style.transform = `rotateX(${pitch * 3}deg) rotateY(${roll * 3}deg)`;
+
+            // Update Gas Jitter if in Simulation Mode
+            if (simMode === 'simulation') {
+                let jitter = Math.floor(Math.random() * 11) - 5;
+                let newPPM = Math.min(1000, Math.max(100, currentGasPPM + jitter));
+                updateGasTelemetryUI(newPPM);
+            }
+
+            // Increment Counters
             packetCounter++;
-            document.getElementById('packet-count').innerText = packetCounter;
+            sdSectorCounter += 2;
+            document.getElementById('pkt-val').innerText = packetCounter;
+            document.getElementById('sd-sectors').innerText = sdSectorCounter.toLocaleString();
 
-            // Update Chart
-            const nowStr = new Date().toLocaleTimeString();
-            telemetryChart.data.labels.shift();
-            telemetryChart.data.labels.push(nowStr);
-            telemetryChart.data.datasets[0].data.shift();
-            telemetryChart.data.datasets[0].data.push(currentGasPPM);
-            telemetryChart.data.datasets[1].data.shift();
-            telemetryChart.data.datasets[1].data.push(parseFloat(voltage));
-            telemetryChart.update('none');
+            // Record Telemetry Row for CSV Export
+            const timeStr = new Date().toISOString();
+            telemetryHistory.push({
+                timestamp: timeStr,
+                gas_ppm: currentGasPPM,
+                gas_volts: ((currentGasPPM / 1000) * 3.0).toFixed(2),
+                bme_temp: bmeT,
+                bme_humidity: bmeH,
+                bme_pressure: bmeP,
+                tmp102_core_temp: coreTemp,
+                ina219_voltage: voltageVal,
+                ina219_current_ma: currentDraw,
+                solar_flux_percent: fluxVal,
+                pitch: pitch,
+                roll: roll,
+                yaw: yaw,
+                orbit_phase: isEclipse ? "ECLIPSE" : "SUNLIGHT",
+                risk_tier: getRiskTier(currentGasPPM)
+            });
 
-        }, 3000);
+            // Update Dynamic Chart Streams
+            const nowTimeStr = new Date().toLocaleTimeString();
+            gasChart.data.labels.shift();
+            gasChart.data.labels.push(nowTimeStr);
+            gasChart.data.datasets[0].data.shift();
+            gasChart.data.datasets[0].data.push(currentGasPPM);
+            gasChart.update('none');
 
-        // Initialize simulation on load
+            healthChart.data.labels.shift();
+            healthChart.data.labels.push(nowTimeStr);
+            healthChart.data.datasets[0].data.shift();
+            healthChart.data.datasets[0].data.push(parseFloat(coreTemp));
+            healthChart.data.datasets[1].data.shift();
+            healthChart.data.datasets[1].data.push(parseFloat(voltageVal));
+            healthChart.update('none');
+
+        }, 2000);
+
+        // --- Export CSV Telemetry Log Generator ---
+        function exportCSVTelemetry() {
+            if (telemetryHistory.length === 0) {
+                showModal("No Data Recorded", "Telemetry stream is still initializing. Please wait a few seconds and try exporting again.");
+                return;
+            }
+
+            const headers = Object.keys(telemetryHistory[0]).join(",");
+            const rows = telemetryHistory.map(row => Object.values(row).join(",")).join("\n");
+            const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows;
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `GasTella_CubeSat_Telemetry_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showModal("CSV Telemetry Export Complete", `Successfully generated and downloaded ${telemetryHistory.length} recorded telemetry entries for technical report evidence.`);
+        }
+
+        // Initialize default view on load
         window.onload = function() {
-            updateSimulationGas(220);
+            drawCameraFrame(false);
+            updateGasTelemetryUI(220);
         };
     </script>
 </body>
